@@ -32,6 +32,8 @@ app.post("/webhook", function(req, res) {
             entry.messaging.forEach(function(event) {
                 if (event.postback) {
                     processPostback(event);
+                } else if (event.message) {
+                    processMessage(event);
                 }
             });
         });
@@ -51,7 +53,6 @@ function processPostback(event) {
             url: "https://graph.facebook.com/v2.6/" + senderId,
             qs: {
                 access_token: process.env.PAGE_ACCESS_TOKEN,
-                thread_state: 'new_thread',
                 fields: "first_name"
             },
             method: "GET"
@@ -62,11 +63,34 @@ function processPostback(event) {
             } else {
                 var bodyObj = JSON.parse(body);
                 name = bodyObj.first_name;
-                greeting = "Merhaba " + name + ". ";
+                greeting = "Hi " + name + ". ";
             }
-            var message = greeting + "Sana nasıl yardımcı olabilirim?";
+            var message = greeting + "My name is SP Movie Bot. I can tell you various details regarding movies. What movie would you like to know about?";
             sendMessage(senderId, { text: message });
         });
+    } else if (payload === "Correct") {
+        sendMessage(senderId, { text: "Awesome! What would you like to find out? Enter 'plot', 'date', 'runtime', 'director', 'cast' or 'rating' for the various details." });
+    } else if (payload === "Incorrect") {
+        sendMessage(senderId, { text: "Oops! Sorry about that. Try using the exact title of the movie" });
+    }
+}
+
+function processMessage(event) {
+    if (!event.message.is_echo) {
+        var message = event.message;
+        var senderId = event.sender.id;
+
+        console.log("Received message from senderId: " + senderId);
+        console.log("Message is: " + JSON.stringify(message));
+
+        // You may get a text or attachment but not both
+        if (message.text) {
+            var formattedMsg = message.text.toLowerCase().trim();
+
+            // processes
+        } else if (message.attachments) {
+            sendMessage(senderId, { text: "Sorry, I don't understand your request." });
+        }
     }
 }
 
@@ -74,7 +98,7 @@ function processPostback(event) {
 function sendMessage(recipientId, message) {
     request({
         url: "https://graph.facebook.com/v2.6/me/messages",
-        qs: { access_token: process.env.PAGE_ACCESS_TOKEN, thread_state: 'new_thread' },
+        qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
         method: "POST",
         json: {
             recipient: { id: recipientId },
