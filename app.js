@@ -38,7 +38,9 @@ app.post('/webhook', function(req, res) {
 
             // Iterate over each messaging event
             entry.messaging.forEach(function(event) {
-                if (event.message) {
+                if (event.postback) {
+                    processPostback(event);
+                } else if (event.message) {
                     receivedMessage(event);
                 } else {
                     console.log("Webhook received unknown event: ", event);
@@ -49,11 +51,45 @@ app.post('/webhook', function(req, res) {
     }
 });
 
-function receivedMessage(event) {
+function processPostback(event) {
     var senderID = event.sender.id;
     var recipientID = event.recipient.id;
     var timeOfMessage = event.timestamp;
     var payload = event.postback.payload;
+
+    if (payload === "Greeting") {
+        // Get user's first name from the User Profile API
+        // and include it in the greeting
+        request({
+            url: "https://graph.facebook.com/v2.6/" + senderID,
+            qs: {
+                access_token: ACC_TOKEN,
+                fields: "first_name"
+            },
+            method: "GET"
+        }, function(error, response, body) {
+            var greeting = "";
+            if (error) {
+                console.log("Error getting user's name: " + error);
+            } else {
+                var bodyObj = JSON.parse(body);
+                name = bodyObj.first_name;
+                greeting = "Merhaba " + name + ". ";
+            }
+            var message = greeting + "Sana nasıl yardımcı olabilirim?";
+            sendTextMessage(senderID, message);
+        });
+    } else if (payload === "Correct") {
+        sendTextMessage(senderID, "Correct btn!");
+    } else if (payload === "Incorrect") {
+        sendTextMessage(senderID, "Incorrect btn!");
+    }
+}
+
+function receivedMessage(event) {
+    var senderID = event.sender.id;
+    var recipientID = event.recipient.id;
+    var timeOfMessage = event.timestamp;
     var message = event.message;
 
     console.log("Received message for user %d and page %d at %d with message:",
@@ -64,17 +100,13 @@ function receivedMessage(event) {
     var messageText = message.text;
     var messageAttachments = message.attachments;
 
-    if (payload === "Greeting") {
-        sendTextMessage(senderID, "Merhaba!");
-    } else {
-        console.log(messageText);
-        if (messageText) {
-            switch (messageText) {
-                case "code":
-                    sendTextMessage(senderID, " is awesome!");
-                default:
-                    sendTextMessage(senderID, messageText);
-            }
+    console.log(messageText);
+    if (messageText) {
+        switch (messageText) {
+            case "code":
+                sendTextMessage(senderID, " is awesome!");
+            default:
+                sendTextMessage(senderID, messageText);
         }
     }
 }
