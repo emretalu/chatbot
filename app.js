@@ -21,15 +21,21 @@ app.get("/webhook", function(req, res) {
     }
 });
 
+// All callbacks for Messenger will be POST-ed here
 app.post("/webhook", function(req, res) {
+    // Make sure this is a page subscription
     if (req.body.object == "page") {
+        // Iterate over each entry
+        // There may be multiple entries if batched
         req.body.entry.forEach(function(entry) {
+            // Iterate over each messaging event
             entry.messaging.forEach(function(event) {
                 if (event.postback) {
                     processPostback(event);
                 }
             });
         });
+
         res.sendStatus(200);
     }
 });
@@ -39,6 +45,8 @@ function processPostback(event) {
     var payload = event.postback.payload;
 
     if (payload === "Greeting") {
+        // Get user's first name from the User Profile API
+        // and include it in the greeting
         request({
             url: "https://graph.facebook.com/v2.6/" + senderId,
             qs: {
@@ -61,6 +69,7 @@ function processPostback(event) {
     }
 }
 
+// sends message to user
 function sendMessage(recipientId, message) {
     request({
         url: "https://graph.facebook.com/v2.6/me/messages",
@@ -68,7 +77,7 @@ function sendMessage(recipientId, message) {
         method: "POST",
         json: {
             recipient: { id: recipientId },
-            message: message
+            message: message,
         }
     }, function(error, response, body) {
         if (error) {
