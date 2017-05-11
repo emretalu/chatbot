@@ -32,8 +32,6 @@ app.post("/webhook", function(req, res) {
             entry.messaging.forEach(function(event) {
                 if (event.postback) {
                     processPostback(event);
-                } else if (event.message) {
-                    processMessage(event);
                 }
             });
         });
@@ -45,6 +43,9 @@ app.post("/webhook", function(req, res) {
 function processPostback(event) {
     var senderId = event.sender.id;
     var payload = event.postback.payload;
+
+    console.log("Process postback func");
+    console.log("Payload: " + payload + " | senderId: " + senderId);
 
     if (payload === "Greeting") {
         // Get user's first name from the User Profile API
@@ -65,37 +66,19 @@ function processPostback(event) {
                 name = bodyObj.first_name;
                 greeting = "Hi " + name + ". ";
             }
-            var message = greeting + "My name is SP Movie Bot. I can tell you various details regarding movies. What movie would you like to know about?";
+            var message = greeting + "Sana nasıl yardımcı olabilirim?";
             sendMessage(senderId, { text: message });
         });
     } else if (payload === "Correct") {
-        sendMessage(senderId, { text: "Awesome! What would you like to find out? Enter 'plot', 'date', 'runtime', 'director', 'cast' or 'rating' for the various details." });
+        sendMessage(senderId, { text: "Correct btn!" });
     } else if (payload === "Incorrect") {
-        sendMessage(senderId, { text: "Oops! Sorry about that. Try using the exact title of the movie" });
-    }
-}
-
-function processMessage(event) {
-    if (!event.message.is_echo) {
-        var message = event.message;
-        var senderId = event.sender.id;
-
-        console.log("Received message from senderId: " + senderId);
-        console.log("Message is: " + JSON.stringify(message));
-
-        // You may get a text or attachment but not both
-        if (message.text) {
-            var formattedMsg = message.text.toLowerCase().trim();
-
-            // processes
-        } else if (message.attachments) {
-            sendMessage(senderId, { text: "Sorry, I don't understand your request." });
-        }
+        sendMessage(senderId, { text: "Incorrect btn!" });
     }
 }
 
 // sends message to user
 function sendMessage(recipientId, message) {
+    console.log("send message function");
     request({
         url: "https://graph.facebook.com/v2.6/me/messages",
         qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
