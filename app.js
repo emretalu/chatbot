@@ -11,12 +11,12 @@ app.get('/', function(req, res) {
     res.send('Deployed!');
 });
 
-app.get('/webhook', function(req, res) {
+app.get("/webhook", function(req, res) {
     if (req.query["hub.verify_token"] === process.env.VERIFICATION_TOKEN) {
         console.log("Verified webhook");
-        res.status(200).send(req.query["hub.challange"]);
+        res.status(200).send(req.query["hub.challenge"]);
     } else {
-        console.error("Verification failed.");
+        console.error("Verification failed. The tokens do not match.");
         res.sendStatus(403);
     }
 });
