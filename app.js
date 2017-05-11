@@ -280,7 +280,7 @@ function receivedPostback(event) {
 
     if (payload === "Greeting") {
         var greeting = "";
-        var first_name = getUserInfo('first_name');
+        var first_name = getUserInfo('first_name', senderID);
         greeting = "Merhaba " + first_name + ". Sana nasıl yardımcı olabilirim?";
         sendTextMessage(senderID, greeting);
     } else {
@@ -674,11 +674,11 @@ function callSendAPI(messageData) {
     });
 }
 
-function getUserInfo(fieldName) {
+function getUserInfo(fieldName, senderID) {
     var fieldData = "";
 
     request({
-        url: "https://graph.facebook.com/v2.6/" + senderId,
+        url: "https://graph.facebook.com/v2.6/" + senderID,
         qs: {
             access_token: PAGE_ACCESS_TOKEN,
             fields: fieldName
