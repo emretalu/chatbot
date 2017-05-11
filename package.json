@@ -1,12 +1,13 @@
 {
   "name": "chatbot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Chatbot Example",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" &amp;&amp; exit 1",
+    "start": "node app.js"
   },
-  "author": "",
+  "author": "Emre Talu",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.1",
