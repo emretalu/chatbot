@@ -2,17 +2,20 @@ var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
 
+const VERIF_TOKEN = process.env.VERIFICATION_TOKEN;
+const ACC_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.listen((process.env.PORT || 5000));
+app.set('port', (process.env.PORT || 5000));
 
 app.get('/', function(req, res) {
     res.send('Deployed!');
 });
 
 app.get("/webhook", function(req, res) {
-    if (req.query["hub.verify_token"] === process.env.VERIFICATION_TOKEN) {
+    if (req.query["hub.verify_token"] === VERIF_TOKEN) {
         console.log("Verified webhook");
         res.status(200).send(req.query["hub.challenge"]);
     } else {
@@ -21,75 +24,97 @@ app.get("/webhook", function(req, res) {
     }
 });
 
-// All callbacks for Messenger will be POST-ed here
-app.post("/webhook", function(req, res) {
+app.post('/webhook', function(req, res) {
+    var data = req.body;
+    console.log("Webhook received :: " + data);
+
     // Make sure this is a page subscription
-    if (req.body.object == "page") {
-        // Iterate over each entry
-        // There may be multiple entries if batched
-        req.body.entry.forEach(function(entry) {
+    if (data.object === 'page') {
+
+        // Iterate over each entry - there may be multiple if batched
+        data.entry.forEach(function(entry) {
+            var pageID = entry.id;
+            var timeOfEvent = entry.time;
+
             // Iterate over each messaging event
             entry.messaging.forEach(function(event) {
-                if (event.postback) {
-                    processPostback(event);
+                if (event.message) {
+                    receivedMessage(event);
+                } else {
+                    console.log("Webhook received unknown event: ", event);
                 }
             });
         });
-
         res.sendStatus(200);
     }
 });
 
-function processPostback(event) {
-    var senderId = event.sender.id;
+function receivedMessage(event) {
+    var senderID = event.sender.id;
+    var recipientID = event.recipient.id;
+    var timeOfMessage = event.timestamp;
     var payload = event.postback.payload;
+    var message = event.message;
 
-    console.log("Process postback func");
-    console.log("Payload: " + payload + " | senderId: " + senderId);
+    console.log("Received message for user %d and page %d at %d with message:",
+        senderID, recipientID, timeOfMessage);
+    console.log(JSON.stringify(message));
+
+    var messageId = message.mid;
+    var messageText = message.text;
+    var messageAttachments = message.attachments;
 
     if (payload === "Greeting") {
-        // Get user's first name from the User Profile API
-        // and include it in the greeting
-        request({
-            url: "https://graph.facebook.com/v2.6/" + senderId,
-            qs: {
-                access_token: process.env.PAGE_ACCESS_TOKEN,
-                fields: "first_name"
-            },
-            method: "GET"
-        }, function(error, response, body) {
-            var greeting = "";
-            if (error) {
-                console.log("Error getting user's name: " + error);
-            } else {
-                var bodyObj = JSON.parse(body);
-                name = bodyObj.first_name;
-                greeting = "Hi " + name + ". ";
+        sendTextMessage(senderID, "Merhaba!");
+    } else {
+        console.log(messageText);
+        if (messageText) {
+            switch (messageText) {
+                case "code":
+                    sendTextMessage(senderID, " is awesome!");
+                default:
+                    sendTextMessage(senderID, messageText);
             }
-            var message = greeting + "Sana nasıl yardımcı olabilirim?";
-            sendMessage(senderId, { text: message });
-        });
-    } else if (payload === "Correct") {
-        sendMessage(senderId, { text: "Correct btn!" });
-    } else if (payload === "Incorrect") {
-        sendMessage(senderId, { text: "Incorrect btn!" });
+        }
     }
 }
 
-// sends message to user
-function sendMessage(recipientId, message) {
-    console.log("send message function");
-    request({
-        url: "https://graph.facebook.com/v2.6/me/messages",
-        qs: { access_token: process.env.PAGE_ACCESS_TOKEN },
-        method: "POST",
-        json: {
-            recipient: { id: recipientId },
-            message: message,
+function sendTextMessage(recipientId, messageText) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: messageText
         }
+    };
+
+    callSendAPI(messageData);
+}
+
+function callSendAPI(messageData) {
+    request({
+        uri: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: { access_token: ACC_TOKEN },
+        method: 'POST',
+        json: messageData
+
     }, function(error, response, body) {
-        if (error) {
-            console.log("Error sending message: " + response.error);
+        if (!error && response.statusCode == 200) {
+            var recipientId = body.recipient_id;
+            var messageId = body.message_id;
+
+            console.log("Successfully sent generic message with id %s to recipient %s",
+                messageId, recipientId);
+        } else {
+            console.error("Unable to send message.");
+            console.error(response);
+            console.error(error);
         }
     });
 }
+
+// Spin up the server
+app.listen(app.get('port'), function() {
+    console.log('running on port', app.get('port'))
+});
