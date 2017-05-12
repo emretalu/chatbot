@@ -182,7 +182,7 @@ function receivedMessage(event) {
         return;
     }
 
-    messageText = messageText.englishToLower();
+    messageText = messageText.turkishUpperCase().turkishLowerCase();
 
     if (messageText) {
 
@@ -710,33 +710,27 @@ function getUserInfo(fieldName, senderID) {
     return fieldData;
 }
 
-String.prototype.englishToUpper = function() {
-    var string = this;
-    var letters = { "İ": "i", "I": "ı", "Ş": "ş", "Ğ": "ğ", "Ü": "ü", "Ö": "ö", "Ç": "ç" };
-    string = string.replace(/(([ISGUCO]))/g, function(letter) { return letters[letter]; })
-    return string.toUpperCase();
-}
+String.prototype.turkishUpperCase = function() {
+    return this.replace(/ğ/g, 'G')
+        .replace(/ü/g, 'U')
+        .replace(/ş/g, 'S')
+        .replace(/ı/g, 'I')
+        .replace(/i/g, 'I')
+        .replace(/ö/g, 'O')
+        .replace(/ç/g, 'C')
+        .toUpperCase();
+};
 
-String.prototype.englishToLower = function() {
-    var string = this;
-    var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
-    string = string.replace(/(([isguco]))/g, function(letter) { return letters[letter]; })
-    return string.toLowerCase();
-}
-
-String.prototype.turkishToUpper = function() {
-    var string = this;
-    var letters = { "İ": "i", "I": "ı", "Ş": "ş", "Ğ": "ğ", "Ü": "ü", "Ö": "ö", "Ç": "ç" };
-    string = string.replace(/(([İIŞĞÜÇÖ]))/g, function(letter) { return letters[letter]; })
-    return string.toUpperCase();
-}
-
-String.prototype.turkishToLower = function() {
-    var string = this;
-    var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
-    string = string.replace(/(([iışğüçö]))/g, function(letter) { return letters[letter]; })
-    return string.toLowerCase();
-}
+String.prototype.turkishLowerCase = function() {
+    return this.replace(/Ğ/g, 'g')
+        .replace(/Ü/g, 'u')
+        .replace(/Ş/g, 's')
+        .replace(/I/g, 'i')
+        .replace(/İ/g, 'i')
+        .replace(/Ö/g, 'o')
+        .replace(/Ç/g, 'c')
+        .toLowerCase();
+};
 
 app.listen(app.get('port'), function() {
     console.log('running on port', app.get('port'))
