@@ -294,8 +294,20 @@ function receivedPostback(event) {
 
     if (payload === "Greeting") {
         var greeting = "";
+        var extra = "";
+
         var first_name = getUserInfo('first_name', senderID);
-        greeting = "Merhaba " + first_name + ". Sana nasıl yardımcı olabilirim?";
+        var gender = getUserInfo('gender', senderID);
+
+        if (gender === "male") {
+            extra = "Erkek adamın aslında yardıma ihtiyacı olmaz ama yine de size nasıl yardımcı olabilirim?";
+        } else if (gender === "female") {
+            extra = "Sizin gibi bir hanımefendiye yardım etmek benim için bir şereftir. Size nasıl yardımcı olabilirim?";
+        } else {
+            extra = "Size nasıl yardımcı olabilirim?";
+        }
+
+        greeting = "Merhaba " + first_name + ". " + extra;
         sendTextMessage(senderID, greeting);
     } else {
         // When a postback is called, we'll send a message back to the sender to 
