@@ -295,7 +295,10 @@ function receivedPostback(event) {
     if (payload === "Greeting") {
         var greeting = "";
         var first_name = getUserInfo('first_name', senderID);
-        greeting = "Merhaba " + first_name + ". Sana nasıl yardımcı olabilirim?";
+        var gender = getUserInfo('gender', senderID);
+        var hometown = getUserInfo('hometown', senderID);
+
+        greeting = "Merhaba " + first_name + ". Öğrendiğime göre bugün " + hometown + " şehrinde havalar güneşliymiş. Böyle güzel bir havada sana nasıl yardımcı olabilirim?";
         sendTextMessage(senderID, greeting);
     } else {
         // When a postback is called, we'll send a message back to the sender to 
