@@ -182,6 +182,8 @@ function receivedMessage(event) {
         return;
     }
 
+    messageText = messageText.englishToLower();
+
     if (messageText) {
 
         // If we receive a text message, check to see if it matches any special
@@ -706,6 +708,34 @@ function getUserInfo(fieldName, senderID) {
     });
 
     return fieldData;
+}
+
+String.prototype.englishToUpper = function() {
+    var string = this;
+    var letters = { "İ": "i", "I": "ı", "Ş": "ş", "Ğ": "ğ", "Ü": "ü", "Ö": "ö", "Ç": "ç" };
+    string = string.replace(/(([ISGUCO]))/g, function(letter) { return letters[letter]; })
+    return string.toUpperCase();
+}
+
+String.prototype.englishToLower = function() {
+    var string = this;
+    var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
+    string = string.replace(/(([isguco]))/g, function(letter) { return letters[letter]; })
+    return string.toLowerCase();
+}
+
+String.prototype.turkishToUpper = function() {
+    var string = this;
+    var letters = { "İ": "i", "I": "ı", "Ş": "ş", "Ğ": "ğ", "Ü": "ü", "Ö": "ö", "Ç": "ç" };
+    string = string.replace(/(([İIŞĞÜÇÖ]))/g, function(letter) { return letters[letter]; })
+    return string.toUpperCase();
+}
+
+String.prototype.turkishToLower = function() {
+    var string = this;
+    var letters = { "i": "İ", "ş": "Ş", "ğ": "Ğ", "ü": "Ü", "ö": "Ö", "ç": "Ç", "ı": "I" };
+    string = string.replace(/(([iışğüçö]))/g, function(letter) { return letters[letter]; })
+    return string.toLowerCase();
 }
 
 app.listen(app.get('port'), function() {
