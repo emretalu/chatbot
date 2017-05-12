@@ -244,6 +244,14 @@ function receivedMessage(event) {
                 sendTextMessage(senderID, "Almanya'da havalar nasıl? Havaları boşver, asıl biralar nasıl? :) Biz işte bildiğin gibiyiz. Çoluk çocuk da iyi, ellerinden öperler :D");
                 break;
 
+            case 'sarp':
+                sendTextMessage(senderID, "Co, selam! Şimdi aslında sana göndereceğim ilk mesaj 'Hello World!' olmalıydı biliyorum ama olmayınca olmuyor işte :D");
+                break;
+
+            case 'pinar':
+                sendTextMessage(senderID, "Vaayy efendim, siz de mi chatbot'umuzu test etmek için buradasınız? Buyrun buyrun, hoş geldiniz. Çay servisi az sonra başlayacak, istediğiniz yere geçip oturabilirsiniz :)");
+                break;
+
             default:
                 sendTextMessage(senderID, messageText);
         }
