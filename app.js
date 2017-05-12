@@ -240,6 +240,10 @@ function receivedMessage(event) {
                 sendAccountLinking(senderID);
                 break;
 
+            case 'yusuf':
+                sendTextMessage(senderID, "Almanya'da havalar nasıl? Havaları boşver, asıl biralar nasıl? :) Biz işte bildiğin gibiyiz. Çoluk çocuk da iyi, ellerinden öperler :D");
+                break;
+
             default:
                 sendTextMessage(senderID, messageText);
         }
