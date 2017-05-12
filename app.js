@@ -695,7 +695,7 @@ function getUserInfo(fieldName, senderID) {
         url: "https://graph.facebook.com/v2.6/" + senderID,
         qs: {
             access_token: PAGE_ACCESS_TOKEN,
-            fields: fieldName
+            fields: "first_name"
         },
         method: "GET"
     }, function(error, response, body) {
@@ -703,7 +703,7 @@ function getUserInfo(fieldName, senderID) {
             console.log("Error getting user data: " + error);
         } else {
             var bodyObj = JSON.parse(body);
-            fieldData = bodyObj.fieldName;
+            fieldData = bodyObj.first_name;
         }
     });
 
