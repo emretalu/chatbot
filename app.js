@@ -299,11 +299,11 @@ function receivedPostback(event) {
         var gender = getUserInfo('gender', senderID);
 
         if (gender === 'male') {
-            extra = "Erkek adamın yardıma ihtiyacı olmaz ama yine de sana nasıl yardımcı olabilirim?";
+            extra = "Erkek adamın yardıma ihtiyacı olmaz ama yine de sana nasıl yardımcı olabilirim?" + gender;
         } else if (gender === 'female') {
-            extra = "Sizin gibi bir hanımefendiye yardım etmek benim için bir şereftir. Size nasıl yardımcı olabilirim?"
+            extra = "Sizin gibi bir hanımefendiye yardım etmek benim için bir şereftir. Size nasıl yardımcı olabilirim?" + gender;
         } else {
-            extra = "Size nasıl yardımcı olabilirim?";
+            extra = "Size nasıl yardımcı olabilirim?" + gender;
         }
 
         greeting = "Merhaba " + first_name + ". " + extra;
