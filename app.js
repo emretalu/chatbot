@@ -711,6 +711,8 @@ function getUserInfo(fieldName, senderID) {
         },
         method: "GET"
     }, function(error, response, body) {
+        console.log(response);
+        console.log(body);
         if (error) {
             console.log("Error getting user data: " + error);
         } else {
